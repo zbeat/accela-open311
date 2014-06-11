@@ -1,66 +1,99 @@
+// Include required modules.
 var express = require('express');
 var accela = require('accela-construct');
-var config = require('./config');
 var js2xmlparser = require('js2xmlparser');
 
+// Include credentials for calling Accela Construct API.
+var config = require('./config');
+
+// Port for Express app to listen on.
+var port = process.argv[2] || 3000;
+
+// Set up Accela Construct API client.
 accela.setup(config);
 
+// Set up Express app and router.
 var app = express();
+var router = express.Router();
+app.use('/', router);
+app.listen(port);
 
-function generateRespone(type, response) {
-	if(type == 'xml') {
-		return js2xmlparser('', response);
-	}
-	else {
-		return response;
-	}	
-}
+// Ensure Jurisdiction ID is used on all requests.
+router.use(function(req, res, next) {
+  if(!req.query.jurisdiction_id) {
+  	res.end('You must use a jurisdiction ID.');
+  }
+  else {
+  	next();
+  }
+});
 
-app.get('/services.:ext', function(req, res) {
+// Get a list of serice request types.
+router.get('/services.:ext', function(req, res, next) {
 	accela.records.getAllRecordTypes({module: 'ServiceRequest'}, function (response, error) {
 	    if(!error) {
-	    	res.send(generateRespone(req.params.ext, response));     
+	    	res.format = req.params.ext;
+	    	res.payload = response;
+	    	next();
 	    }
 	    else {
-	        res.send('An error ocurred: ' + error);
+	        res.end('An error ocurred: ' + error);
 	    }
 	});
 });
 
-app.get('/services/:service_code', function(req, res) {
+// Get a specific service definition type based on the request code.
+router.get('/services/:service_code.:ext', function(req, res, next) {
 	res.send('Service code: ' + req.params.service_code);
 });
 
-app.get('/tokens/:token_id', function(req, res) {
+// Get the service_request_id from a temporary token.
+router.get('/tokens/:token_id.:ext', function(req, res) {
 	res.send('Token ID: ' + req.params.token_id);
 });
 
-app.get('/requests', function(req, res) {
+// Get a list of service requests.
+router.get('/requests.:ext', function(req, res, next) {
 	var limit = req.query.limit || '25';
 	var offset = req.query.offset || '0';
 	accela.records.getAllRecords({ module: 'ServiceRequest', limit: limit, offset: offset}, function (response, error) {
 	    if(!error) {
-	        res.send(response);
+	    	res.format = req.params.ext;
+	    	res.payload = response;
+	    	next();
 	    }
 	    else {
-	        res.send('An error ocurred: ' + error);
+	        res.end('An error ocurred: ' + error);
 	    }
 	});
 });
 
-app.get('/requests/:service_request_id', function(req, res) {
+// Get a specific service request based on the ID.
+router.get('/requests/:service_request_id.:ext', function(req, res, next) {
 	accela.records.getRecords({id: req.params.service_request_id}, function (response, error) {
 		if(!error) {
-			res.send(response);
-		}
-		else {
-			res.send('An error ocurred: ' + error);
-		}
+	    	res.format = req.params.ext;
+	    	res.payload = response;
+	    	next();
+	    }
+	    else {
+	        res.end('An error ocurred: ' + error);
+	    }
 	});
 });
 
-app.post('/requests', function(req, res) {
+// Create a new service request.
+router.post('/requests.:ext', function(req, res, next) {
 	res.send('Create service requests');
 });
 
-app.listen(3000);
+// Structure and format the response.
+router.use(function(req, res, next) {
+	if(res.format == 'xml') {
+		res.send(js2xmlparser('', res.payload));
+	}
+	else {
+		res.send(res.payload);
+	}
+});
+
