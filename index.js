@@ -84,7 +84,16 @@ router.get('/requests/:service_request_id.:ext', function(req, res, next) {
 
 // Create a new service request.
 router.post('/requests.:ext', function(req, res, next) {
-	res.send('Create service requests');
+	res.send('Create service requests.');
+});
+
+// Add a comment to an existing service request. 
+router.post('/requests/:service_request_id/comments.:ext', function(req, res, next) {
+	res.send('Add a new comment.');
+});
+
+router.post('/apikey/new', function(req, res, next) {
+	res.send('Get a new API key.');
 });
 
 // Structure and format the response.
