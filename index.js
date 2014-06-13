@@ -2,6 +2,7 @@
 var express = require('express');
 var accela = require('accela-construct');
 var js2xmlparser = require('js2xmlparser');
+var cradle = require('cradle');
 
 // Include credentials for calling Accela Construct API.
 var config = require('./config');
@@ -24,13 +25,14 @@ router.use(function(req, res, next) {
   	res.end('You must use a jurisdiction ID.');
   }
   else {
+  	res.jurisdiction_id = req.query.jurisdiction_id;
   	next();
   }
 });
 
-// Get a list of serice request types.
+// Get a list of service request types.
 router.get('/services.:ext', function(req, res, next) {
-	accela.records.getAllRecordTypes({module: 'ServiceRequest'}, function (response, error) {
+	accela.records.getAllRecordTypes({module: config.config.module}, function (response, error) {
 	    if(!error) {
 	    	res.format = req.params.ext;
 	    	res.payload = response;
@@ -56,7 +58,7 @@ router.get('/tokens/:token_id.:ext', function(req, res) {
 router.get('/requests.:ext', function(req, res, next) {
 	var limit = req.query.limit || '25';
 	var offset = req.query.offset || '0';
-	accela.records.getAllRecords({ module: 'ServiceRequest', limit: limit, offset: offset}, function (response, error) {
+	accela.records.getAllRecords({ module: config.config.module, limit: limit, offset: offset}, function (response, error) {
 	    if(!error) {
 	    	res.format = req.params.ext;
 	    	res.payload = response;
@@ -82,27 +84,82 @@ router.get('/requests/:service_request_id.:ext', function(req, res, next) {
 	});
 });
 
+// Get all comments for a service request.
+router.get('/requests/:service_request_id/comments.:ext', function(req, res, next) {
+	res.format = req.params.ext;
+	res.payload = { message: 'Get comments for a service requests.' };
+	next();
+});
+
 // Create a new service request.
 router.post('/requests.:ext', function(req, res, next) {
-	res.send('Create service requests.');
+	if(!req.query.key) {
+		res.end('API key required.')
+	}
+	else {
+		var db = new(cradle.Connection)().database('keys');
+		db.get(req.query.key, function(error, doc) {
+			if(error) {
+				res.end('Invalid API key.');
+			}
+			else {
+				res.format = req.params.ext;
+				res.payload = { message: 'Create service requests.' };
+				next();
+			}
+		});
+	}
 });
 
 // Add a comment to an existing service request. 
 router.post('/requests/:service_request_id/comments.:ext', function(req, res, next) {
-	res.send('Add a new comment.');
-});
-
-router.post('/apikey/new', function(req, res, next) {
-	res.send('Get a new API key.');
-});
-
-// Structure and format the response.
-router.use(function(req, res, next) {
-	if(res.format == 'xml') {
-		res.send(js2xmlparser('', res.payload));
+	if(!req.query.key) {
+		res.end('API key required.')
 	}
 	else {
-		res.send(res.payload);
+		var dbk = new(cradle.Connection)().database('keys');
+		dbk.get(req.query.key, function(error, doc) {
+			if(error) {
+				res.end('Invalid API key.');
+			}
+			else {
+				var dbc = new(cradle.Connection)().database('comments');
+				dbc.save({ service_request_id: req.params.service_request_id, comment: req.query.comment }, function(error, response) {
+					if(error) {
+						res.end('Could not save comment.')
+					}
+					else {
+						res.format = req.params.ext;
+	    				res.payload = response;
+	    				next();
+					}
+				});
+			}
+		});
 	}
 });
 
+// Get an API key.
+router.post('/apikey/new', function(req, res, next) {
+	var db = new(cradle.Connection)().database('keys');
+	db.save({ email: req.query.email, jurisdiction_id: req.query.jurisdiction_id }, function(error, response) {
+		if(error) {
+			res.end('Could not create API key.');
+		}
+		else {
+			res.format = 'json';
+	    	res.payload = { key: response.id };
+	    	next();
+		}
+	});
+});
+
+// Structure and format the API response.
+router.use(function(req, res, next) {
+	if(res.format == 'xml') {
+		res.end(js2xmlparser('result', res.payload));
+	}
+	else {
+		res.end(JSON.stringify(res.payload));
+	}
+});
