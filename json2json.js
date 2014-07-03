@@ -28,65 +28,104 @@ exports.parse = function(template, payload, jurisdiction_id, callback) {
 }
 
 function getServicesList(payload, jurisdiction_id, callback) {
-
 	var services = [];
 	var xmlOptions = { rootName: 'services', wrapArray: { enabled: true }, wrapArrayItem: 'service' };
 	for(var i=0; i<payload.result.length; i++) {
 		var service = {
-		    'service_code': payload.result[i].id,
+		    'service_code': payload.result[i].value || null,
+		    'value': payload.result[i].id || null,
 		    'metadata': false,
 		    'type': 'realtime',
-		    'keywords': payload.result[i].subtype,
-		    'group': payload.result[i].subtype,
-		    'service_name': payload.result[i].type,
-		    'description': payload.result[i].text
-		  }
+		    'keywords': payload.result[i].subType || null,
+		    'group': payload.result[i].group || null,
+		    'service_name': payload.result[i].type || null,
+		    'description': payload.result[i].text || null,
+		    'group': payload.result[i].group || null,
+		    'module': payload.result[i].module
+		}
 		services.push(service);  
 	}
 	callback(null, services, xmlOptions);
 };
 
-function getServiceDefinition(payload, jurisdiction_id, callback) {
-
+function getServiceDefinition(payload, jurisdiction_id, callback) { 
+	var xmlOptions = { rootName: 'result' };
+	callback(null, payload, xmlOptions);
 };
 
 function getSeviceRequests(payload, jurisdiction_id, callback) {
-
-	var requests = [];
 	var xmlOptions = { rootName: 'requests', wrapArray: { enabled: true }, wrapArrayItem: 'request' };
-	for(var i=0; i<payload.result.length; i++) {
+	requests = formatServiceRequests(payload.result);
+	callback(null, requests, xmlOptions);
+};
 
-		var address = '', address_id = '', zipcode = '', lat = '', lon = '', state = '', status = '';
-		if(payload.result[i].addresses) {
-			address = payload.result[i].addresses[0].streetStart + ' ';
-			address += payload.result[i].addresses[0].streetName + ' ';
-			if(payload.result[i].addresses[0].streetSuffix) {
-				address += payload.result[i].addresses[0].streetSuffix.text + ', ';
-			}
-			address += payload.result[i].addresses[0].city + ', ';
-			if(payload.result[i].addresses[0].state) {
-				state = payload.result[i].addresses[0].state.text + ' ';
-			}
-			address += state
-			address += payload.result[i].addresses[0].postalCode;
-			address_id = payload.result[i].addresses[0].id;
-			zipcode = payload.result[i].addresses[0].postalCode;
-			lat = payload.result[i].addresses[0].xCoordinate;
-			lon = payload.result[i].addresses[0].yCoordinate;
+function getSpecificSeviceRequest(payload, jurisdiction_id, callback) {
+	var xmlOptions = { rootName: 'requests', wrapArray: { enabled: true }, wrapArrayItem: 'request' };
+	requests = formatServiceRequests(payload.result);
+	callback(null, requests, xmlOptions);
+};
+
+function getRequestComments(payload, jurisdiction_id, callback) {
+	var xmlOptions = { rootName: 'comments', wrapArray: { enabled: true }, wrapArrayItem: 'comment' };
+	callback(null, payload, xmlOptions);
+};
+
+function postServiceRequests(payload, jurisdiction_id, callback) {
+	var xmlOptions = { rootName: 'service_requests', wrapArray: { enabled: true }, wrapArrayItem: 'request' };
+	response = [{ service_request_id: payload.result.id}]
+	callback(null, response, xmlOptions);
+};
+
+function postNewComment(payload, jurisdiction_id, callback) {
+	var xmlOptions = { rootName: 'comments', wrapArray: { enabled: true }, wrapArrayItem: 'comment' };
+	callback(null, payload, xmlOptions);
+};
+
+function newAPIKey(payload, jurisdiction_id, callback) {
+	var xmlOptions = { rootName: 'result' };
+	callback(null, payload, xmlOptions);
+};
+
+function formatServiceRequests(payload) {
+	var requests = [];
+	for(var i=0; i<payload.length; i++) {
+		var address = '', status = '';
+		if(payload[i].addresses) {
+		//	if(payload[i].addresses.isPrimary == 'Y') {
+				var streetStart = payload[i].addresses[0].streetStart || '';
+				var streetName = payload[i].addresses[0].streetName || '';
+				var city = payload[i].addresses[0].city || '';
+				var postalCode = payload[i].addresses[0].postalCode || '';
+				if(payload[i].addresses[0].streetSuffix) {
+					var streetSuffix = payload[i].addresses[0].streetSuffix.text || '';
+				}
+				if(payload[i].addresses[0].state) {
+					var state = payload[i].addresses[0].state.text || '';
+				}
+				var address_id = payload[i].addresses[0].id  || null;
+				var zipcode = payload[i].addresses[0].postalCode  || null;
+
+				address = streetStart + ' ' + streetName + ' ' + streetSuffix;
+				address += city.length > 0 ? ', ' + city : '';
+				address += state.length > 0 ? ', ' + state : '';
+
+				var lat = payload[i].addresses[0].xCoordinate  || null;
+				var lon = payload[i].addresses[0].yCoordinate  || null;
+		//	}
 		}
-		if(payload.result[i].status) {
-			status = payload.result[i].status.text;
+		if(payload[i].status) {
+			status = payload[i].status.text;
 		}
 
 		var request = {
-		    'service_request_id': payload.result[i].id,
+		    'service_request_id': payload[i].id,
 		    'status': status,
-		    'service_name': payload.result[i].type.text,
-		    'service_code': payload.result[i].type.id,
-		    'description': payload.result[i].description,
-		    'agency_responsible': payload.result[i].assignedToDepartment,
-		    'requested_datetime': payload.result[i].reportedDate,
-		    'updated_datetime': payload.result[i].statusDate,
+		    'service_name': payload[i].type.text || null,
+		    'service_code': payload[i].type.id || null,
+		    'description': payload[i].description || null,
+		    'agency_responsible': payload[i].assignedToDepartment || null,
+		    'requested_datetime': payload[i].reportedDate || null,
+		    'updated_datetime': payload[i].statusDate || null,
 		    'address': address,
 		    'address_id': address_id,
 		    'zipcode': zipcode,
@@ -96,29 +135,5 @@ function getSeviceRequests(payload, jurisdiction_id, callback) {
 		}
 		requests.push(request);
 	}
-	callback(null, requests, xmlOptions);
-};
-
-function getSpecificSeviceRequest(payload, jurisdiction_id, callback) {
-
-};
-
-function getRequestComments(payload, jurisdiction_id, callback) {
-	var xmlOptions = { rootName: 'comments', wrapArray: { enabled: true }, wrapArrayItem: 'comment' };
-	callback(null, payload, xmlOptions);
-};
-
-function postServiceRequests(payload, jurisdiction_id, callback) {
-	var xmlOptions = { rootName: 'result' };
-	callback(null, payload, xmlOptions);
-};
-
-function postNewComment(payload, jurisdiction_id, callback) {
-	var xmlOptions = { rootName: 'result' };
-	callback(null, payload, xmlOptions);
-};
-
-function newAPIKey(payload, jurisdiction_id, callback) {
-	var xmlOptions = { rootName: 'result' };
-	callback(null, payload, xmlOptions);
-};
+	return payload;
+}

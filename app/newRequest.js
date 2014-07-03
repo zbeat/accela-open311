@@ -8,64 +8,74 @@ var config = require('../config');
 accela.setup(config);
 
 exports.create = function(req, res, next) {
+	if(req.query.lat == null || req.query.long == null) {
+		res.status(400).end('request must include coordinates of issue being reported.');
+	}
 	var db = new(cradle.Connection)().database('open311');
 	db.get(res.key, function(error, doc) {
 		if(error) {
 			res.status(403).end('Invalid API key.');
 		}
 		else {
-
 		record = {
-			    module: "ServiceRequest",
-			    createdBy: 'Open311 Server',
-			    serviceProviderCode: res.jurisdiction_id,
+			    module: config.config.module,
+			    createdBy: 'MDEVELOPER',
+			    serviceProviderCode: res.jurisdiction_id.toUpperCase(),
 			    type: {
-			        subType: "Graffiti",
-			        group: "ServiceRequest",
-			        text: "Graffiti",
-			        value: "ServiceRequest/Graffiti/Graffiti/NA",
-			        type: "Graffiti",
-			        module: "ServiceRequest"
+			        subType: req.query.subType,
+			        group: req.query.group,
+			        text: req.query.text,
+			        value: req.query.value,
+			        type: req.query.type,	
+			        module: config.config.module
 			    },
-			    description: 'This is a test service request for Open311.'
+			    description: req.query.description
 			}
 
-			address = [
+			addresses = [
 				{
 					xCoordinate: req.query.lat,
-		        	yCoordinate: req.query.lon
+		        	yCoordinate: req.query.long,
+		        	streetStart: req.query.streetNumber,
+		        	streetName: req.query.streetName,
+		        	city: req.query.city,
+			        state: {
+					     text: req.query.state,
+					     value: req.query.state
+					   },
+			        postalCode: req.query.zip
 				}
 			]
-			comment = { text: 'http://this.isnotre.al' }
+			comment = [ { text: req.query.media_url } ]
 
-			accela.records.createRecord(null, record, function(response, error, body) {
-				if (!error && response.statusCode == 200) {
-				response = JSON.parse(body);
+			accela.records.createRecord(null, record, function(response, error) {
+				if (!error) {
+				res.payload = response;
 				var record_id = response.result.id;
-					accela.records.createRecordAddresses({recordID: record_id}, addresses, function(response, error, body) {
-						if (!error && response.statusCode == 200) {
-							accela.records.createRecordComments({recordID: record_id}, comment, function(response, error, body) {
-								if (!error && response.statusCode == 200) {
+					accela.records.createRecordAddresses({recordID: record_id}, addresses, function(response, error) {
+						if (!error) {
+							accela.records.createRecordComments({recordID: record_id}, comment, function(response, error) {
+								if (!error) {
 									res.template = 'PostServiceRequest';
 									res.format = req.params.ext;
-									res.payload = { service_request_id: record_id };
 									next();
 								}
 								else {
 									// Add logging.
-									res.status(500).end('Could not create service request. Step 3.');
+									res.status(500).end('Could not create service request comment');
 								}
 							});
 						}
 						else {
 							// Add logging.
-							res.status(500).end('Could not create service request. Step 2.');
+							res.status(500).end('Could not create service request address.');
 						}
 					});
 				}
 				else {
 					// Add logging.
-					res.status(500).end('Could not create service request. ' + error);
+					console.log(response.statusCode);
+					res.status(500).end('Could not create service request record.');
 				}
 			});
 		}

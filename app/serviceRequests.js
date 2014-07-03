@@ -11,7 +11,7 @@ exports.list = function(req, res, next) {
 	var limit = req.query.limit || '25';
 	var offset = req.query.offset || '0';
 	var options = { module: config.module };
-	accela.search.records({ expand: 'addresses', limit: limit, offset: offset}, options, function (response, error) {
+	accela.search.records({ expand: 'addresses,parcels,professionals,contacts,owners,customForms,customTables', limit: limit, offset: offset}, options, function (response, error) {
 	    if(!error) {
 	    	res.template = 'GetSeviceRequests';
 	    	res.format = req.params.ext;

@@ -47,7 +47,8 @@ app.get('/services.:ext', function(req, res, next) {
 
 // Get a specific service definition type based on the request code.
 app.get('/services/:service_code.:ext', function(req, res, next) {
-	serviceTypes.describe(req, res, next);
+	//serviceTypes.describe(req, res, next);
+	res.status(404).end('Method not implemented.');
 });
 
 // Get the service_request_id from a temporary token.
