@@ -1,0 +1,16 @@
+{
+    "_id": "config",
+    "type": "config",
+    "auth_values": {
+        "access_token": "",
+        "token_type": "",
+        "expires_in": "",
+        "refresh_token": "",
+        "scope": "create_record create_record_addresses create_record_comments get_civicid_profile get_record get_settings_record_types search_addresses search_contacts"
+    },
+    "app_id": "",
+    "app_secret": "",
+    "environment": "",
+    "module": "ServiceRequest",
+    "agency": ""
+}

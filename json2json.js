@@ -61,8 +61,8 @@ function getSeviceRequests(payload, jurisdiction_id, callback) {
 
 function getSpecificSeviceRequest(payload, jurisdiction_id, callback) {
 	var xmlOptions = { rootName: 'requests', wrapArray: { enabled: true }, wrapArrayItem: 'request' };
-	requests = formatServiceRequests(payload.result);
-	callback(null, requests, xmlOptions);
+	request = formatServiceRequests(payload.result);
+	callback(null, request, xmlOptions);
 };
 
 function getRequestComments(payload, jurisdiction_id, callback) {
@@ -89,23 +89,24 @@ function newAPIKey(payload, jurisdiction_id, callback) {
 function formatServiceRequests(payload) {
 	var requests = [];
 	for(var i=0; i<payload.length; i++) {
-		var address = '', status = '';
+		var address = state =  status = streetSuffix = '';
 		if(payload[i].addresses) {
 		//	if(payload[i].addresses.isPrimary == 'Y') {
 				var streetStart = payload[i].addresses[0].streetStart || '';
 				var streetName = payload[i].addresses[0].streetName || '';
 				var city = payload[i].addresses[0].city || '';
 				var postalCode = payload[i].addresses[0].postalCode || '';
-				if(payload[i].addresses[0].streetSuffix) {
+				if(payload[i].addresses[0].streetSuffix !== undefined) {
 					var streetSuffix = payload[i].addresses[0].streetSuffix.text || '';
 				}
-				if(payload[i].addresses[0].state) {
+				if(payload[i].addresses[0].state !== undefined) {
 					var state = payload[i].addresses[0].state.text || '';
 				}
 				var address_id = payload[i].addresses[0].id  || null;
 				var zipcode = payload[i].addresses[0].postalCode  || null;
 
 				address = streetStart + ' ' + streetName + ' ' + streetSuffix;
+				console.log(streetStart);
 				address += city.length > 0 ? ', ' + city : '';
 				address += state.length > 0 ? ', ' + state : '';
 
@@ -131,9 +132,9 @@ function formatServiceRequests(payload) {
 		    'zipcode': zipcode,
 		    'lat': lat,
 		    'long': lon,
-		    'media_url':'http://thisisface.com'
+		    'media_url': null
 		}
 		requests.push(request);
 	}
-	return payload;
+	return requests;
 }
