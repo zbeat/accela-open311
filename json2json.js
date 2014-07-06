@@ -106,7 +106,6 @@ function formatServiceRequests(payload) {
 				var zipcode = payload[i].addresses[0].postalCode  || null;
 
 				address = streetStart + ' ' + streetName + ' ' + streetSuffix;
-				console.log(streetStart);
 				address += city.length > 0 ? ', ' + city : '';
 				address += state.length > 0 ? ', ' + state : '';
 

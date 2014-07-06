@@ -80,7 +80,6 @@ db.view('type/config', function(error, response) {
 					}
 					else {
 						// Add logging.
-						console.log(response.statusCode);
 						res.status(500).end('Could not create service request record.');
 					}
 				});
