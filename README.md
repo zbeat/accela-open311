@@ -206,7 +206,7 @@ Parameters:
 Sample Response:
 
 ```json
-"{ success: true}"
+{ "success": true}
 ```
 
 ### Get an API Key
