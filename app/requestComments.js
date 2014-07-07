@@ -22,7 +22,7 @@ var db = new(cradle.Connection)().database('open311');
 				else {
 					res.template = 'PostNewComment';
 					res.format = req.params.ext;
-    				res.payload = '{ success: ' + response.ok + '}';
+    				res.payload = '{ "success": ' + response.ok + '}';
     				next();
 				}
 			});

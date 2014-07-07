@@ -11,7 +11,10 @@ An Open311 server that integrates with Accela Automation.
 HTTP Method: GET
 
 Parameters:
-* jurisdiction_id (Required)
+
+| Name  | Required  |
+|:--|:-:|
+|  jurisdiction_id | Y  | 
 
 Sample Response:
 
@@ -42,14 +45,6 @@ Sample Response:
 ]
 ```
 
-### Get Service Request Details
-
-Method not implemented.
-
-### Get Service Request ID from Token
-
-Method not implemented.
-
 ### Get List of Service Requests
 
 <code>http://[API endpoint]/requests.[format]</code>
@@ -57,9 +52,12 @@ Method not implemented.
 HTTP Method: GET
 
 Parameters:
-* jurisdiction_id (Required)
-* limit
-* offset
+
+| Name  | Required  |
+|:--|:-:|
+| jurisdiction_id | Y  | 
+| limit | N |
+| offset | N |
 
 Sample Response:
 
@@ -98,9 +96,12 @@ Sample Response:
 
 HTTP Method: GET
 
-Parameters
-* jurisdiction_id (Required)
-* service_request_id (Required)
+Parameters:
+
+| Name  | Required  |
+|:--|:-:|
+| jurisdiction_id | Y  | 
+| service_request_id | Y |
 
 Sample Response:
 
@@ -122,10 +123,118 @@ Sample Response:
 ```
 ### Create a New Service Request
 
+<code>http://[API endpoint]/requests.[format]</code>
+
 HTTP Method: POST
 
 Parameters:
-* jurisdiction_id (Required)
-* key (Required)
-* 
+
+| Name  | Required  |
+|:--|:-:|
+| jurisdiction_id | Y  | 
+| key | Y |
+| name | N |
+| subType | N |
+| group | N |
+| text | N |
+| value | N |
+| type | N |
+| description | N |
+| lat | Y |
+| long | Y |
+| streetNumber | N |
+| streetName | N |
+| streetSuffix | N |
+| city | N |
+| state | N |
+| media_url | N |
+
+Note - Address parts are optional, but lat / long are required to create a new service request.
+
+Sample Response:
+
+```json
+[
+    {
+        "service_request_id": "ISLANDTON-14CAP-00000-00080"
+    }
+]
+```
+
+### Get Comments For a Service Request
+
+<code>http://[API endpoint]/requests/comments/[service_request_id].[format]</code>
+
+HTTP Method: GET
+
+Parameters:
+
+| Name  | Required  |
+|:--|:-:|
+| jurisdiction_id | Y  | 
+| service_request_id | Y |
+
+Sample Response:
+
+```json
+[
+    {
+        "comment": "This is a comment", 
+        "jurisdiction_id": "Islandton", 
+        "request_id": "ISLANDTON-14CAP-00000-0007V"
+    }
+]
+
+```
+
+### Add a Comment to a Service Request
+
+<code>http://[API endpoint]/requests/comments/[service_request_id].[format]</code>
+
+HTTP Method: POST
+
+Parameters:
+
+| Name  | Required  |
+|:--|:-:|
+| jurisdiction_id | Y  | 
+| service_request_id | Y |
+| key | Y |
+| comment | Y |
+
+
+Sample Response:
+
+```json
+"{ success: true}"
+```
+
+### Get an API Key
+
+<code>http://[API endpoint]/apikey/new.[format]</code>
+
+HTTP Method: PUT
+
+Parameters:
+
+| Name  | Required  |
+|:--|:-:|
+| jurisdiction_id | Y  | 
+| email | Y |
+
+Sample Response:
+
+```json
+{
+    "key": "3e664199418013792fc157188c036dce"
+}
+```
+
+### Get Service Request Details
+
+Method not implemented.
+
+### Get Service Request ID from Token
+
+Method not implemented.
 

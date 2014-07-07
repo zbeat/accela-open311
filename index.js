@@ -18,6 +18,10 @@ var app = express();
 var router = express.Router();
 app.listen(port);
 
+app.get('/', function(req, res, next) {
+	res.status(200).end('Accela Open311 server');
+});
+
 // Ensure Jurisdiction ID is used on all requests & API key on POST requests.
 app.use(function(req, res, next) {
   if(!req.query.jurisdiction_id) {
