@@ -1,7 +1,7 @@
 var cradle = require('cradle');
 var accela = require('accela-construct');
 
-var db = new(cradle.Connection)().database('open311');
+var db = new(cradle.Connection)({cache: false}).database('open311');
 db.view('type/config', function(error, response) {
 
 	// Set up Accela Construct API client.

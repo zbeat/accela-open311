@@ -5,7 +5,7 @@ exports.create = function(req, res, next) {
 		res.status(500).end('You must supply an email address');
 	}
 	else {
-		var db = new(cradle.Connection)().database('open311');
+		var db = new(cradle.Connection)({cache: false}).database('open311');
 		db.save({ type: 'key', email: req.query.email, jurisdiction_id: req.query.jurisdiction_id }, function(error, response) {
 			if(error) {
 				res.status(500).end('Could not create API key.');

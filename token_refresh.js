@@ -4,7 +4,7 @@ var cradle = require('cradle');
 
 var ENDPOINT = 'https://apis.accela.com/oauth2/token';
 
-var db = new(cradle.Connection)().database('open311');
+var db = new(cradle.Connection)({cache: false}).database('open311');
 
 db.get('config', function(error, doc) {
 	if(!error) {

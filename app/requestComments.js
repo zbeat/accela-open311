@@ -1,7 +1,7 @@
 var cradle = require('cradle');
 
 exports.create = function(req, res, next) {
-var db = new(cradle.Connection)().database('open311');
+var db = new(cradle.Connection)({cache: false}).database('open311');
 	db.get(res.key, function(error, doc) {
 		if(error) {
 			res.status(403).end('Invalid API key.');
