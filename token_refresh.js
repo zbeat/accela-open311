@@ -26,10 +26,10 @@ db.get('config', function(error, doc) {
 		    }
 		request(options, function (error, response, body) {
 			if(!error && response.statusCode == 200) {
-				doc.auth_values = body;
-				db.save('config', doc._rev, doc, function(error, response) {
-					if(!error) {
-						console.log('Could not save configuration values.');
+				var auth_values = JSON.parse(body);
+				db.merge('config', { auth_values: auth_values }, function(error, response) {
+					if(error !== null) {
+						console.log('Could not save configuration values: ' + response);
 					}
 					else {
 						console.log('Config updated.');
