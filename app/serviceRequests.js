@@ -14,29 +14,31 @@ db.view('type/config', function(error, response) {
 		var offset = req.query.offset || '0';
 		var options = { module: config.config.module };
 		accela.search.records({ expand: 'addresses,contacts', limit: limit, offset: offset}, options, function (response, error) {
-		    if(!error) {
+		    if(error) {
+		    	res.errorDetails = {message: 'An error ocurred: ' + error, code: 500};
+  				next(error);
+		    }
+		    else {
 		    	res.template = 'GetSeviceRequests';
 		    	res.format = req.params.ext;
 		    	res.payload = response;
-		    	next();
-		    }
-		    else {
-		        res.status(500).end('An error ocurred: ' + error);
+		    	next();		    	
 		    }
 		});	
 	}
 
 	exports.describe = function(req, res, next) {
 			accela.records.getRecords({id: req.params.service_request_id, expand: 'addresses,parcels,professionals,contacts,owners,customForms,customTables'}, function (response, error) {
-			if(!error) {
-		    	res.template = 'GetSpecificSeviceRequest';
+			if(error) {
+		    	res.errorDetails = {message: 'An error ocurred: ' + error, code: 500};
+  				next(error);
+			}
+			else {
+				res.template = 'GetSpecificSeviceRequest';
 		    	res.format = req.params.ext;
 		    	res.payload = response;
 		    	next();
-		    }
-		    else {
-		        res.status(500).end('An error ocurred: ' + error);
-		    }
+			}
 		});
 	}
 

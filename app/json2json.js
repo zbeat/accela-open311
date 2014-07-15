@@ -1,3 +1,5 @@
+var moment = require('moment');
+
 exports.parse = function(template, payload, jurisdiction_id, callback) {
 	switch(template) {
 		case 'GetServicesList':
@@ -124,11 +126,10 @@ function formatServiceRequests(payload) {
 		    'service_code': payload[i].type.id || null,
 		    'description': payload[i].description || null,
 		    'agency_responsible': payload[i].assignedToDepartment || null,
-		    'requested_datetime': payload[i].reportedDate || null,
-		    'updated_datetime': payload[i].statusDate || null,
+		    'requested_datetime': formatDates(payload[i].reportedDate) || null,
+		    'updated_datetime': formatDates(payload[i].statusDate) || null,
 		    'address': address,
 		    'address_id': address_id,
-		    'zipcode': zipcode,
 		    'lat': lat,
 		    'long': lon,
 		    'media_url': null
@@ -136,4 +137,11 @@ function formatServiceRequests(payload) {
 		requests.push(request);
 	}
 	return requests;
+}
+
+function formatDates(date) {
+	if(!date) {
+		return null;
+	}
+	return moment(date);
 }

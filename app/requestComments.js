@@ -4,7 +4,8 @@ exports.create = function(req, res, next) {
 var db = new(cradle.Connection)({cache: false}).database('open311');
 	db.get(res.key, function(error, doc) {
 		if(error) {
-			res.status(403).end('Invalid API key.');
+			res.errorDetails = {message: 'Invalid API key.', code: 403};
+  			next(error);
 		}
 		else {
 			var doc =
@@ -17,8 +18,8 @@ var db = new(cradle.Connection)({cache: false}).database('open311');
 				}
 			db.save(doc, function(error, response) {
 				if(error) {
-					res.status(500).end('Could not save comment.')
-				}
+			    	res.errorDetails = {message: 'An error ocurred: ' + error, code: 500};
+	  				next(error);				}
 				else {
 					res.template = 'PostNewComment';
 					res.format = req.params.ext;
@@ -35,7 +36,8 @@ var db = new(cradle.Connection)().database('open311');
 var path = 
 	db.list('type/get-comments/comments', {request_id: req.params.service_request_id}, function(error, response) {
 		if(error) {
-			res.status(404).end(JSON.stringify(error));
+			res.errorDetails = {message: error, code: 404};
+  			next(error);
 		}
 		else {
 			res.template = 'GetRequestComments';

@@ -11,12 +11,14 @@ db.view('type/config', function(error, response) {
 
 	exports.create = function(req, res, next) {
 		if(req.query.lat == null || req.query.long == null) {
-			res.status(400).end('request must include coordinates of issue being reported.');
+			res.errorDetails = {message: 'request must include coordinates of issue being reported.' + error, code: 403};
+	  		next(error);
 		}
 		var db = new(cradle.Connection)().database('open311');
 		db.get(res.key, function(error, doc) {
 			if(error) {
-				res.status(403).end('Invalid API key.');
+				res.errorDetails = {message: 'Invalid API key.', code: 403};
+	  			next(error);
 			}
 			else {
 			record = {
@@ -55,36 +57,36 @@ db.view('type/config', function(error, response) {
 				comment = [ { text: req.query.media_url } ]
 
 				accela.records.createRecord(null, record, function(response, error) {
-					if (!error) {
-					res.payload = response;
-					var record_id = response.result.id;
+					if (error) {
+						res.errorDetails = {message: 'Could not create service request record.' + error, code: 500};
+	  					next(error);
+					}
+					else {
+						res.payload = response;
+						var record_id = response.result.id;
 						accela.records.createRecordAddresses({recordID: record_id}, addresses, function(response, error) {
-							if (!error) {
+							if (error) {
+								res.errorDetails = {message: 'Could not create service request address.' + error, code: 500};
+	  							next(error);						
+							}
+							else {
 								accela.records.createRecordComments({recordID: record_id}, comment, function(response, error) {
-									if (!error) {
-										res.template = 'PostServiceRequest';
-										res.format = req.params.ext;
-										next();
+									if (error) {
+										res.errorDetails = {message: 'Could not create service request comment.' + error, code: 500};
+	  									next(error);
 									}
 									else {
-										// Add logging.
-										res.status(500).end('Could not create service request commentxxxxxxxx');
+										res.template = 'PostServiceRequest';
+										res.format = req.params.ext;
+										next();										
 									}
 								});
 							}
-							else {
-								// Add logging.
-								res.status(500).end('Could not create service request address.');
-							}
+							
 						});
-					}
-					else {
-						// Add logging.
-						res.status(500).end('Could not create service request record.');
 					}
 				});
 			}
 		});
 	}
-
 });

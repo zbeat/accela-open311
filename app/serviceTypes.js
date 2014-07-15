@@ -11,22 +11,27 @@ db.view('type/config', function(error, response) {
 
 	exports.list = function(req, res, next) {
 		accela.records.getAllRecordTypes({module: config.config.module}, function (response, error) {
-		    if(!error) {
+		    if(error) {
+		    	res.errorDetails = {message: 'An error ocurred: ' + error, code: 500};
+  				next(error);
+		    }
+		    else {
 		    	res.template = 'GetServicesList';
 		    	res.format = req.params.ext;
 		    	res.payload = response;
 		    	next();
-		    }
-		    else {
-		        res.status(500).end('An error ocurred: ' + error);
 		    }
 		});
 	}
 
 	exports.describe = function(req, res, next) {
 		accela.records.getAllRecordTypes({module: config.config.module}, function (response, error) {
-		    if(!error) {
-		    	res.template = 'GetServiceDefinition';
+		    if(error) {
+		    	res.errorDetails = {message: 'An error ocurred: ' + error, code: 500};
+  				next(error);
+		    }
+		    else {
+				res.template = 'GetServiceDefinition';
 		    	res.format = req.params.ext;
 		    	for(var i=0; i<response.result.length; i++) {
 		    		if(response.result[i].id == req.params.service_code) {
@@ -35,9 +40,6 @@ db.view('type/config', function(error, response) {
 		    		}
 		    	}
 		    	next();
-		    }
-		    else {
-		        res.status(500).end('An error ocurred: ' + error);
 		    }
 		});
 	}
