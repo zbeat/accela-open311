@@ -1,6 +1,5 @@
 {
     "_id": "config",
-    "_rev": "48-a15d03ec17ba47fda5993bcc48e39de3",
     "type": "config",
     "auth_values": {
         "access_token": "",
