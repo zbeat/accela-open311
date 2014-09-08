@@ -129,27 +129,32 @@ HTTP Method: POST
 
 Parameters:
 
-| Name  | Required  |
-|:--|:-:|
-| jurisdiction_id | Y  | 
-| key | Y |
-| name | N |
-| subType | N |
-| group | N |
-| text | N |
-| value | N |
-| type | N |
-| description | N |
-| lat | Y |
-| long | Y |
-| streetNumber | N |
-| streetName | N |
-| streetSuffix | N |
-| city | N |
-| state | N |
-| media_url | N |
+| Name  | Required | Details
+|:--|:-:|:--|
+| jurisdiction_id | Y | Thet jurisdiction the service request is being submitted to. | 
+| key | Y | The API key. |
+| service_name | Y | Name of the service request type. Value from **service_name** field in <code>/services</code> call.|
+| service_code | Y | Value of **service_code** field in <code>/services</code> call. |
+| description | N | Description of the issue being reported. |
+| lat | Y | Latitude of the location of the issue. |
+| long | Y | Lingitude of the location of the issue. |
+| streetNumber | N | Street number of the location of the issue. |
+| streetName | N | Street name of the location of the issue.|
+| streetSuffix | N | Street suffix of the location of the issue.|
+| city | N | City where the issue is observed. |
+| state | N | State where where the issue is observed. |
+| media_url | N | Fually qualified URL to media showing the details of an issue. |
 
-Note - Address parts are optional, but lat / long are required to create a new service request.
+Sample Request:
+
+<pre>
+curl -X POST "http://[API endpoint]/requests.json?jurisdiction_id=Islandton&key={your API key}
+    &service_name=Garbage&service_code=ServiceRequest/Garbage/Trash%20Removal/NA
+    &lat=39.050&long=-75.1667
+    &description=This%20Is%20A%20Test%20Record
+    &media_url=http://www.somedomain.com/image.jpg"
+
+</pre>
 
 Sample Response:
 
@@ -229,10 +234,6 @@ Sample Response:
     "key": "3e664199418013792fc157188c036dce"
 }
 ```
-
-### Get Service Request Details
-
-Method not implemented.
 
 ### Get Service Request ID from Token
 

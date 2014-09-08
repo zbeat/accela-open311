@@ -93,27 +93,27 @@ function formatServiceRequests(payload) {
 	for(var i=0; i<payload.length; i++) {
 		var address = state =  status = streetSuffix = '';
 		if(payload[i].addresses) {
-		//	if(payload[i].addresses.isPrimary == 'Y') {
-				var streetStart = payload[i].addresses[0].streetStart || '';
-				var streetName = payload[i].addresses[0].streetName || '';
-				var city = payload[i].addresses[0].city || '';
-				var postalCode = payload[i].addresses[0].postalCode || '';
-				if(payload[i].addresses[0].streetSuffix !== undefined) {
-					var streetSuffix = payload[i].addresses[0].streetSuffix.text || '';
-				}
-				if(payload[i].addresses[0].state !== undefined) {
-					var state = payload[i].addresses[0].state.text || '';
-				}
-				var address_id = payload[i].addresses[0].id  || null;
-				var zipcode = payload[i].addresses[0].postalCode  || null;
+	//	if(payload[i].addresses.isPrimary == 'Y') {
+			var streetStart = payload[i].addresses[0].streetStart || '';
+			var streetName = payload[i].addresses[0].streetName || '';
+			var city = payload[i].addresses[0].city || '';
+			var postalCode = payload[i].addresses[0].postalCode || '';
+			if(payload[i].addresses[0].streetSuffix !== undefined) {
+				var streetSuffix = payload[i].addresses[0].streetSuffix.text || '';
+			}
+			if(payload[i].addresses[0].state !== undefined) {
+				var state = payload[i].addresses[0].state.text || '';
+			}
+			var address_id = payload[i].addresses[0].id  || null;
+			var zipcode = payload[i].addresses[0].postalCode  || null;
 
-				address = streetStart + ' ' + streetName + ' ' + streetSuffix;
-				address += city.length > 0 ? ', ' + city : '';
-				address += state.length > 0 ? ', ' + state : '';
+			address = streetStart + ' ' + streetName + ' ' + streetSuffix;
+			address += city.length > 0 ? ', ' + city : '';
+			address += state.length > 0 ? ', ' + state : '';
 
-				var lat = payload[i].addresses[0].xCoordinate  || null;
-				var lon = payload[i].addresses[0].yCoordinate  || null;
-		//	}
+			var lat = payload[i].addresses[0].xCoordinate  || null;
+			var lon = payload[i].addresses[0].yCoordinate  || null;
+	//	}
 		}
 		if(payload[i].status) {
 			status = payload[i].status.text;
@@ -126,22 +126,31 @@ function formatServiceRequests(payload) {
 		    'service_code': payload[i].type.id || null,
 		    'description': payload[i].description || null,
 		    'agency_responsible': payload[i].assignedToDepartment || null,
-		    'requested_datetime': formatDates(payload[i].reportedDate) || null,
-		    'updated_datetime': formatDates(payload[i].statusDate) || null,
+		    'requested_datetime': formatDates(payload[i].reportedDate),
+		    'updated_datetime': formatDates(payload[i].statusDate),
 		    'address': address,
 		    'address_id': address_id,
 		    'lat': lat,
 		    'long': lon,
-		    'media_url': null
+		    'media_url': verifyURL(payload[i].shortNotes) || null
 		}
 		requests.push(request);
 	}
 	return requests;
 }
 
-function formatDates(date) {
-	if(!date) {
+function formatDates(aDate) {
+	if(!aDate) {
 		return null;
 	}
-	return moment(date);
+	return moment(aDate).toString();
+}
+
+function verifyURL(url) {
+	if(typeof(url) != 'undefined' && (url.search('http://') == 0)) {
+		return url;
+	}
+	else {
+		return null;
+	}
 }

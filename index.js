@@ -27,15 +27,13 @@ app.get('/', function(req, res, next) {
 // Ensure Jurisdiction ID is used on all requests & API key on POST requests.
 app.use(function(req, res, next) {
   if(!req.query.jurisdiction_id) {
-  	res.errorDetails = {message: 'You must use a jurisdiction ID.', code: 403};
-  	next(error);
+  	res.status(403).json({message: 'You must use a jurisdiction ID.'});
   }
   else {
   	res.jurisdiction_id = req.query.jurisdiction_id;
 	if(req.method == 'POST') {
-		if(!req.query.key) {
-			res.errorDetails = {message: 'You must use an API key.', code: 403};
-  			next(error);
+		if(req.query.key.length == 0) {
+			res.status(403).json({message: 'You must use an API key.'});
 		}
 		else {
 			res.key = req.query.key;
@@ -109,6 +107,7 @@ app.use(function(req, res, next) {
 			}
 			else {
 				res.json(result);
+				res.end();
 			}
 		}
 	});
@@ -116,11 +115,11 @@ app.use(function(req, res, next) {
 
 // Handle error responses.
 app.use(function(err, req, res, next){
-	var request = cycle.decycle(req);
-	var response = cycle.decycle(res);
+	var request = cycle.decycle(req) || {};
+	var response = cycle.decycle(res) || {};
 	if(res.errorDetails) {
 		var code = res.errorDetails.code || 500;
-		var message = res.errorDetails.message || 'An error occured';
+		var message =  'An error occured';
 	}
 	logger.log({request: request, response: response}, function() {
 		res.status(code).json({ message: message });

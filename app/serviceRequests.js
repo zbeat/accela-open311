@@ -13,7 +13,7 @@ db.view('type/config', function(error, response) {
 		var limit = req.query.limit || '25';
 		var offset = req.query.offset || '0';
 		var options = { module: config.config.module };
-		accela.search.records({ expand: 'addresses,contacts', limit: limit, offset: offset}, options, function (response, error) {
+		accela.search.records('NoAuth', { expand: 'addresses,contacts', limit: limit, offset: offset}, options, function (response, error) {
 		    if(error) {
 		    	res.errorDetails = {message: 'An error ocurred: ' + error, code: 500};
   				next(error);

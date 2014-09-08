@@ -1,35 +1,17 @@
-var request = require('request');
-var querystring = require('querystring');
+var accela = require('accela-construct');
 var cradle = require('cradle');
 
-var ENDPOINT = 'https://apis.accela.com/oauth2/token';
-
 var db = new(cradle.Connection)({cache: false}).database('open311');
-
 db.get('config', function(error, doc) {
+	var config = {};
+	config.config = { access_token: doc.auth_values.access_token, app_id: doc.app_id, app_secret: doc.app_secret, environment: doc.environment, agency: doc.agency, module: doc.module };
+	accela.setup(config);
 	if(!error) {
-		var body = {
-				client_id: doc.app_id,
-				client_secret: doc.app_secret,
-				grant_type: 'refresh_token',
-				refresh_token: doc.auth_values.refresh_token
-			}
-		var headers = {
-	        'Content-Type': 'application/x-www-form-urlencoded', 
-			'x-accela-appid': doc.app_id
-	    };	
-		var options = {
-		        url: ENDPOINT,
-		        method: 'POST',
-		        body: querystring.stringify(body),
-		        headers: headers
-		    }
-		request(options, function (error, response, body) {
-			if(!error && response.statusCode == 200) {
-				var auth_values = JSON.parse(body);
-				db.merge('config', { auth_values: auth_values }, function(error, response) {
-					if(error !== null) {
-						console.log('Could not save configuration values: ' + response);
+		accela.civicid.refreshToken(doc.auth_values.refresh_token, function(response, err) {
+			if(!err) {
+				db.merge('config', { auth_values: response }, function(er, res) {
+					if(er !== null) {
+						console.log('Could not save configuration values: ' + res);
 					}
 					else {
 						console.log('Config updated.');
@@ -37,8 +19,11 @@ db.get('config', function(error, doc) {
 				});
 			}
 			else {
-				console.log('Could not fetch refersh token. Error: ' + error + '. Status Code: ' + response.statusCode);
+				console.log('Could not refresh CivicID token. ' + err);
 			}
 		});
+	}
+	else {
+		console.log('Could not fetch refersh token. Error: ' + error + '. Status Code: ' + response.statusCode);
 	}
 });
