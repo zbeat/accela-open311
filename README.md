@@ -135,9 +135,9 @@ Parameters:
 | key | Y | The API key. |
 | service_name | Y | Name of the service request type. Value from **service_name** field in <code>/services</code> call.|
 | service_code | Y | Value of **service_code** field in <code>/services</code> call. |
-| description | N | Description of the issue being reported. |
 | lat | Y | Latitude of the location of the issue. |
 | long | Y | Lingitude of the location of the issue. |
+| description | N | Description of the issue being reported. |
 | streetNumber | N | Street number of the location of the issue. |
 | streetName | N | Street name of the location of the issue.|
 | streetSuffix | N | Street suffix of the location of the issue.|
