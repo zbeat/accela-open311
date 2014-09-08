@@ -2,6 +2,10 @@
 
 An Open311 server that integrates with Accela Automation.
 
+## Supported Response Formats
+
+JSON, XML
+
 ## API Methods
 
 ### Get Service Request Types
