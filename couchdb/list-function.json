@@ -3,7 +3,7 @@
    "language": "javascript",
    "views": {
        "comments": {
-           "map": "function(doc) {\n  if(doc.type == 'comment') {\n   emit(null, { jurisdiction_id: doc.jurisdiction_id, request_id: doc.service_request_id, comment: doc.comment });\n  }\n}"
+           "map": "function(doc) {\n  if(doc.type == 'comment') {\n   emit(null, { id: doc._id, jurisdiction_id: doc.jurisdiction_id, request_id: doc.service_request_id, comment: doc.comment });\n  }\n}"
        },
        "keys": {
            "map": "function(doc) {\n  if(doc.type == 'key') {\n   emit(null, doc);\n  }\n}"
