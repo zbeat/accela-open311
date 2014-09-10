@@ -16,6 +16,6 @@
        }
    },
    "lists": {
-       "get-comments": "function(head, req) { var row; start({ headers: { 'Content-Type': 'application/json' } }); var response = []; while(row = getRow()) { if(req.query.request_id == row.value.request_id) { response.push({ jurisdiction_id: row.value.jurisdiction_id, request_id: row.value.request_id, comment: row.value.comment }); } } send(JSON.stringify(response)); }"
+       "get-comments": "function(head, req) { var row; start({ headers: { 'Content-Type': 'application/json' } }); var response = []; while(row = getRow()) { if(req.query.request_id == row.value.request_id) { response.push({ id: row.value.id, jurisdiction_id: row.value.jurisdiction_id, request_id: row.value.request_id, comment: row.value.comment }); } } send(JSON.stringify(response)); }"
    }
 }
