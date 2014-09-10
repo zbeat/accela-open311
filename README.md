@@ -215,7 +215,10 @@ Parameters:
 Sample Response:
 
 ```json
-{ "success": true}
+{
+    "success": true,
+    "id": "e49093ee436011216bce26342400c192"
+}
 ```
 
 ### Get an API Key
