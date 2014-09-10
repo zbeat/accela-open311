@@ -136,7 +136,7 @@ Parameters:
 | Name  | Required | Details
 |:--|:-:|:--|
 | jurisdiction_id | Y | Thet jurisdiction the service request is being submitted to. | 
-| key | Y | The API key. |
+| api_key | Y | The API key. |
 | service_name | Y | Name of the service request type. Value from **service_name** field in <code>/services</code> call.|
 | service_code | Y | Value of **service_code** field in <code>/services</code> call. |
 | lat | Y | Latitude of the location of the issue. |
@@ -152,7 +152,7 @@ Parameters:
 Sample Request:
 
 <pre>
-curl -X POST "http://[API endpoint]/requests.json?jurisdiction_id=Islandton&key={your API key}
+curl -X POST "http://[API endpoint]/requests.json?jurisdiction_id=Islandton&api_key={your API key}
     &service_name=Garbage&service_code=ServiceRequest/Garbage/Trash%20Removal/NA
     &lat=39.050&long=-75.1667
     &description=This%20Is%20A%20Test%20Record
