@@ -32,11 +32,11 @@ app.use(function(req, res, next) {
   else {
   	res.jurisdiction_id = req.query.jurisdiction_id;
 	if(req.method == 'POST') {
-		if(req.query.key.length == 0) {
+		if(!req.query.api_key) {
 			res.status(403).json({message: 'You must use an API key.'});
 		}
 		else {
-			res.key = req.query.key;
+			res.key = req.query.api_key;
 			next();
 		}
 	}
@@ -97,7 +97,7 @@ app.put('/apikey/new.:ext', function(req, res, next) {
 app.use(function(req, res, next) {
 	json2json.parse(res.template, res.payload, res.jurisdiction_id, function(error, result, options) {
 		if(error) {
-			res.errorDetails = {message: 'An error occured.', code: 500};
+			res.errorDetails = { message: 'An error occured.', code: 500 };
   			next(error);
 		}
 		else {
@@ -115,12 +115,11 @@ app.use(function(req, res, next) {
 
 // Handle error responses.
 app.use(function(err, req, res, next){
-	var request = cycle.decycle(req) || {};
-	var response = cycle.decycle(res) || {};
-	if(res.errorDetails) {
-		var code = res.errorDetails.code || 500;
-		var message =  'An error occured';
-	}
+	var request = cycle.decycle(req);
+	var response = cycle.decycle(res);
+	var code = typeof(res.errorDetails) == 'undefined' ? 500 : res.errorDetails.code;
+	var message =  typeof(res.errorDetails) == 'undefined' ? 'An error occured' : res.errorDetails.message;
+
 	logger.log({request: request, response: response}, function() {
 		res.status(code).json({ message: message });
 	});

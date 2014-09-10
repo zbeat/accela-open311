@@ -2,7 +2,7 @@ var cradle = require('cradle');
 
 exports.create = function(req, res, next) {
 	if(!req.query.email) {
-		res.status(500).end('You must supply an email address');
+		res.status(403).json({ message: 'You must supply an email address' });
 	}
 	else {
 		var db = new(cradle.Connection)({cache: false}).database('open311');
