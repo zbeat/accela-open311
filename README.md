@@ -208,7 +208,7 @@ Parameters:
 |:--|:-:|
 | jurisdiction_id | Y  | 
 | service_request_id | Y |
-| key | Y |
+| api_key | Y |
 | comment | Y |
 
 
